@@ -1,0 +1,13 @@
+table {
+    background-color: lightskyblue;
+    border: solid 5px black;
+    margin: auto;
+  }
+  ​
+  .title {
+    font-style: italic;
+  }
+  ​
+  #movies {
+    text-align: center;
+  }
