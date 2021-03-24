@@ -1,278 +1,114 @@
-const baseURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json"; //1
-const key = "liGpcJQIKoXgKUW4CBvW70Py9GJXsfwf "; //2
-let url; //3
-
+const baseURL = "https://api.nytimes.com/svc/search/v2/articlesearch.json";
+const key = "REPLACE WITH YOUR KEY";
 //SEARCH FORM
-const searchTerm = document.querySelector(".search");
+const searchTerm = document.querySelector(".search"); // acces searchField on html page
 const startDate = document.querySelector(".start-date");
 const endDate = document.querySelector(".end-date");
 const searchForm = document.querySelector("form");
 const submitBtn = document.querySelector(".submit");
-
 //RESULTS NAVIGATION
 const nextBtn = document.querySelector(".next");
 const previousBtn = document.querySelector(".prev");
 const nav = document.querySelector("nav");
-
 //RESULTS SECTION
 const section = document.querySelector("section");
-
-nav.style.display = "none";
-let pageNumber = 0;
-let displayNav = false;
-
-// //1                     //2
-// searchForm.addEventListener("submit", fetchResults);
-// nextBtn.addEventListener("click", nextPage); //3
-// previousBtn.addEventListener("click", previousPage); //3
-
-// const searchForm = document.querySelector('form');
-
-//1
+nav.style.display = "none"; // hides the nav element from view
+let pageNumber = 0; // this keeps track of what page we are on
+let displayNav = false; // should be the nav element be seen
+// add event listeners to our elements
+searchForm.addEventListener("submit", fetchResults); // listens for a submit event then run fetchResults()
+nextBtn.addEventListener("click", nextPage); // listens for a click event then runs nextPage()
+previousBtn.addEventListener("click", previousPage); // listens for a click event then runs previousPage()
+// eventListener for searchForm
 function fetchResults(e) {
-  console.log(e); //2
-  // Assemble the full URL
-  url =
-    baseURL +
-    "?api-key=" +
-    key +
-    "&page=" +
-    pageNumber +
-    "&q=" +
-    searchTerm.value; //3
-  console.log(url); //4
-}
-
-function nextPage() {
-  console.log("Next button clicked");
-} //5
-
-function previousPage() {
-  console.log("Next button clicked");
-} //5
-
-function fetchResults(e) {
-  e.preventDefault(); //1
-  url =
-    baseURL +
-    "?api-key=" +
-    key +
-    "&page=" +
-    pageNumber +
-    "&q=" +
-    searchTerm.value;
-
+  e.preventDefault(); // stops the default submit event that a form has, this allows us to create our own event for this form, also known as an override
+  url = `${baseURL}?api-key=${key}&page=${pageNumber}&q=${searchTerm.value}`;
+  // check to see if a startDate.value has been provided
   if (startDate.value !== "") {
-    console.log(startDate.value);
-    url += "&begin_date=" + startDate.value;
+    url += `&begin_date=${startDate.value}`; // add the query parameter to the url string
   }
-
+  // check to see if an endDate.value has been provided
   if (endDate.value !== "") {
-    url += "&end_date=" + endDate.value;
+    url += `&end_date=${endDate.value}`; // add the query parameter to the url string
   }
-
-  fetch(url)
-    .then(function (result) {
-      console.log(result);
-      return result.json(); //2
+  fetch(url) // submits a GET request
+    .then((results) => {
+      // once a reply has been made
+      return results.json(); // return a converted JSON to JS object
     })
-    .then(function (json) {
-      console.log(json); //3
+    .then((json) => {
+      displayResults(json); // passes the parsed json data to displayResults()
     });
 }
-
-function fetchResults(e) {
-  //previous code
-  fetch(url)
-    .then(function (result) {
-      return result.json();
-    })
-    .then(function (json) {
-      displayResults(json); //1 & //3
-    });
-}
-
-//2
-function displayResults(json) {
-  console.log("DisplayResults", json);
-}
-
-function displayResults(json) {
-  let articles = json.response.docs;
-  console.log(articles);
-}
-
-function displayResults(json) {
-    let articles = json.response.docs;
-  
-    if(articles.length === 0) {
-      console.log("No results");
+function displayResults(results) {
+  while (section.firstChild) {
+    // this clears the articles from view when a new search is done
+    section.removeChild(section.firstChild); // remove that child element
+  }
+  let articles = results.response.docs; // placeholder to access the article data
+  if (articles.length == 10) {
+    // check to see if we have more than 10 articles
+    nav.style.display = "block"; // show the nav bar
+    if (pageNumber === 0) {
+      previousBtn.style.display = "none";
+    } else if (pageNumber > 0 && articles.length < 10) {
+      nextBtn.style.display = "none";
     } else {
-        for(let i = 0; i < articles.length; i++) {
-          console.log(i);
-        }
-      }
-    };
-
-    function displayResults(json) {
-        let articles = json.response.docs;
-      
-        if(articles.length === 0) {
-          console.log("No results");
-        } else {
-          for(let i = 0; i < articles.length; i++) {
-            let article = document.createElement('article'); //1
-            let heading = document.createElement('h2'); //2
-      
-            article.appendChild(heading); //3
-            section.appendChild(article); //4
-          }
-        }
-      };
-
-      function displayResults(json) {
-        let articles = json.response.docs;
-      
-        if(articles.length === 0) {
-          console.log("No results");
-        } else {
-          for(let i = 0; i < articles.length; i++) {
-            let article = document.createElement('article');
-            let heading = document.createElement('h2');
-            let link = document.createElement('a'); //1
-      
-            let current = articles[i]; //2
-            console.log("Current:", current); //3
-      
-            link.href = current.web_url; //4
-            link.textContent = current.headline.main; //5
-      
-            article.appendChild(heading);
-            heading.appendChild(link); //6
-            section.appendChild(article);
-          }
-        }
-      };
-
-
-      function displayResults(json) {
-        let articles = json.response.docs;
-      
-        if(articles.length === 10) {
-          nav.style.display = 'block'; //shows the nav display if 10 items are in the array
-        } else {
-          nav.style.display = 'none'; //hides the nav display if less than 10 items are in the array
-        }
-      
-      };
-
-      function displayResults(json) {
-        while (section.firstChild) {
-            section.removeChild(section.firstChild); //1
-      
-        }
-      };
-
-      function displayResults(json) {
-
-        //Starting at the else
-       
-         } else {
-         for(let i = 0; i < articles.length; i++) {
-           let article = document.createElement('article');
-           let heading = document.createElement('h2');
-           let link = document.createElement('a');
-           let para = document.createElement('p');   //1
-           let clearfix = document.createElement('div'); //2
-     
-           let current = articles[i];
-           console.log("Current:", current);
-     
-           link.href = current.web_url;
-           link.textContent = current.headline.main;
-     
-           para.textContent = 'Keywords: '; //3
-     
-           //4
-           for(let j = 0; j < current.keywords.length; j++) {
-             //5
-             let span = document.createElement('span');   
-             //6
-             span.textContent += current.keywords[j].value + ' ';   
-             //7
-             para.appendChild(span);
-           }
-     
-           //8
-           clearfix.setAttribute('class','clearfix');
-     
-           //9
-           article.appendChild(heading);
-           heading.appendChild(link);
-           article.appendChild(para);
-           article.appendChild(clearfix);
-           section.appendChild(article);
-         }
-       }
-
-       for(let j = 0; j < current.keywords.length; j++) {
-        let span = document.createElement('p');   
-        span.textContent += current.keywords[j].value + ' ';   
+      previousBtn.style.display = "block";
+      nextBtn.style.display = "block";
+    }
+  } else {
+    nav.style.display = "none"; // hides the nav bar
+  }
+  if (articles.length === 0) {
+    // check to see if the articles.length is empty
+    console.log("No Results");
+  } else {
+    // display the results
+    articles.forEach((a) => {
+      // a == each article in the articles array
+      // console.log(a);
+      let article = document.createElement("article");
+      let heading = document.createElement("h2");
+      let link = document.createElement("a");
+      let img = document.createElement("img");
+      let para = document.createElement("p");
+      let clearfix = document.createElement("div");
+      link.setAttribute("target", "_blank"); // opens the article in a new tab
+      link.href = a.web_url; // set the link.href to the article web_url
+      link.textContent = a.headline.main; // set the link.textContent to the article headline
+      para.textContent = "Keywords: ";
+      a.keywords.forEach((keyword) => {
+        let span = document.createElement("span");
+        span.textContent += keyword.value;
         para.appendChild(span);
-
-        function displayResults(json) {
-            //CODE OMITTED
-         } else {
-         for(let i = 0; i < articles.length; i++) {
-             let article = document.createElement('article');
-             let heading = document.createElement('h2');
-             let link = document.createElement('a');
-             let img = document.createElement('img');  //1
-             let para = document.createElement('p');  
-             let clearfix = document.createElement('div');
-       
-       
-             for(let j = 0; j < current.keywords.length; j++) {
-               let span = document.createElement('span');   
-               span.textContent += current.keywords[j].value + ' ';   
-               para.appendChild(span);
-             }
-       
-               //2
-             if(current.multimedia.length > 0) {
-               //3
-               img.src = 'http://www.nytimes.com/' + current.multimedia[0].url;
-               //4
-               img.alt = current.headline.main;
-             }
-       
-             clearfix.setAttribute('class','clearfix');
-       
-             article.appendChild(heading);
-             heading.appendChild(link);
-             article.appendChild(img); //5
-             article.appendChild(para);
-             article.appendChild(clearfix);
-             section.appendChild(article);
-           }
-         }
-       };
-       
-       function nextPage(e) {
-        pageNumber++; //1
-        fetchResults(e);  //2
-        console.log("Page number:", pageNumber); //3
-     };
-
-     function previousPage(e) {
-        if(pageNumber > 0) { //1
-          pageNumber--; //2
-        } else {
-          return; //3
-        }
-        fetchResults(e); //4
-        console.log("Page:", pageNumber); //5
-      
-      };
-
-      
+      });
+      if (a.multimedia.length > 0) {
+        img.src = `http://www.nytimes.com/${a.multimedia[0].url}`;
+        img.alt = a.headline.main;
+      }
+      clearfix.setAttribute("class", "clearfix");
+      article.appendChild(heading);
+      heading.appendChild(link);
+      article.appendChild(img);
+      article.appendChild(para);
+      article.appendChild(clearfix);
+      section.appendChild(article);
+    });
+  }
+}
+// eventListener for nextBtn
+function nextPage(e) {
+  pageNumber++;
+  fetchResults(e); // call on function to load new results for next page
+}
+//eventListener for previousPage
+function previousPage(e) {
+  if (pageNumber > 0) {
+    // checks if page is greater than 0
+    pageNumber--; // decrease pageNumber by 1
+  } else {
+    return; // break out of the check
+  }
+  fetchResults(e); // call function to load new results for last page
+}
